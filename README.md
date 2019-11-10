@@ -1,10 +1,12 @@
 # libx-msg-im-xsc
 
-* 这是一个建立在[libxsc-cpp](https://github.com/dev5cn/libxsc-cpp)和[libxsc-proto-cpp](https://github.com/dev5cn/libxsc-proto-cpp)之上的通用rpc框架. 
+* 这是一个基于actor模型的单进程多线程并发通信服务器框架. 它的目标是为上层应用提供一个高性能, 可测量, 并行无锁, 网络透明, 全异步的开发环境.
 
-* 在`X-MSG-IM`系统中, 它为所有核心网元提供网络事务控制与应用层消息处理能力.
+* 在`X-MSG-IM`系统中, 它为所有核心网元提供网络事务控制, 应用层消息处理, 透明的分布式信令跟踪(调用链)能力.
 
-* 既然是到了应用层, 提供的api自然也比较友好. 因此, 你可以方便地在这些api上建立一起个高性能, 网络透明, 同时支持多协议接入的并发服务器. 
+* 既然是到了应用层, 提供的api自然也比较友好. 因此, 你可以很快速地在这些api上构建起一个并发服务器. 
+
+* 它建立在[libxsc-cpp](https://github.com/dev5cn/libxsc-cpp)和[libxsc-proto-cpp](https://github.com/dev5cn/libxsc-proto-cpp)之上.
 
 * 看下面的例子.
 
@@ -66,7 +68,7 @@ void x_msg_im_auth_simple(shared_ptr<XscChannel> channel, SptrXitp trans, shared
 	 * trans即network transaction, 一切消息都以事务开始, 以事务结束.
 	 *
 	 */
-	thread t([trans, req]() /* 事务总是在channel归属的线程开始, 却可以在任意线程上结束. */
+	thread t([trans, req]() /* 事务总是在channel归属的线程上开始, 却可以在任意线程上结束. */
 	{
 		shared_ptr<XmsgImAuthSimpleRsp> rsp(new XmsgImAuthSimpleRsp());
 		rsp->set_token("token");
