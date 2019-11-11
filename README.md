@@ -180,3 +180,8 @@ public static void main(String[] args)
     Misc.hold();
 }
 ```
+
+* 完整的例子在这里:
+
+    * [x-msg-im-xsc-examples-cpp](https://github.com/dev5cn/x-msg-im-xsc-examples-cpp)
+    * [x-msg-im-xsc-examples-java](https://github.com/dev5cn/x-msg-im-xsc-examples-java)

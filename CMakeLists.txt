@@ -13,10 +13,11 @@ SET(CMAKE_CXX_FLAGS $ENV{CXX_FLAGS})
 #
 FILE(GLOB SRC0 "*.cpp")
 FILE(GLOB SRC1 "./*/*.cpp")
+FILE(GLOB SRC2 "./*/*.cc")
 #
 PROJECT(x-msg-im-xsc)
 #
-ADD_LIBRARY(x-msg-im-xsc STATIC ${SRC0} ${SRC1})
+ADD_LIBRARY(x-msg-im-xsc STATIC ${SRC0} ${SRC1} ${SRC2})
 INCLUDE(./__file__.cmake)
 REDEFINE_FILE_MACRO(x-msg-im-xsc)
 
