@@ -305,6 +305,8 @@ bool XmsgImChannel::evnMsg(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_pt
 	channel->lts = Xsc::clock;
 	if (pdu->transm.indicator & XSC_TAG_TRANSM_PING) 
 	{
+		if (pdu->transm.indicator == XSC_TAG_TRANSM_PONG) 
+			return true;
 		static uchar pong = XSC_TAG_TRANSM_PONG;
 		channel->send(&pong, 1);
 		return true;
@@ -517,8 +519,24 @@ int XmsgImChannel::n2hTransTimeout()
 	int tm = 10;
 	if (this->pro == XscProtocolType::XSC_PROTOCOL_TCP)
 	{
-		shared_ptr<XscTcpServer> tcpSever = Xsc::getXscTcpServer();
-		auto cfg = static_pointer_cast<XscTcpCfg>(tcpSever->cfg);
+		shared_ptr<XscTcpServer> tcpServer = Xsc::getXscTcpServer();
+		auto cfg = static_pointer_cast<XscTcpCfg>(tcpServer->cfg);
+		tm = this->at == ActorType::ACTOR_H2N ? cfg->h2nTransTimeout : cfg->n2hTransTimeout;
+		tm *= DateMisc::sec;
+		return tm;
+	}
+	if (this->pro == XscProtocolType::XSC_PROTOCOL_HTTP)
+	{
+		shared_ptr<XscHttpServer> httpServer = static_pointer_cast<XscHttpServer>(Xsc::getXscTcpServer());
+		auto cfg = static_pointer_cast<XscHttpCfg>(httpServer->cfg);
+		tm = this->at == ActorType::ACTOR_H2N ? cfg->h2nTransTimeout : cfg->n2hTransTimeout;
+		tm *= DateMisc::sec;
+		return tm;
+	}
+	if (this->pro == XscProtocolType::XSC_PROTOCOL_WEBSOCKET)
+	{
+		shared_ptr<XscWebSocketServer> webSocketServer = static_pointer_cast<XscWebSocketServer>(Xsc::getXscTcpServer());
+		auto cfg = static_pointer_cast<XscWebSocketCfg>(webSocketServer->cfg);
 		tm = this->at == ActorType::ACTOR_H2N ? cfg->h2nTransTimeout : cfg->n2hTransTimeout;
 		tm *= DateMisc::sec;
 		return tm;
