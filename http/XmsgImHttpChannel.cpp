@@ -21,7 +21,7 @@
 #include "net-x-msg-xsc-http.pb.h"
 #include "../XmsgImLog.h"
 
-XmsgImHttpChannel::XmsgImHttpChannel(shared_ptr<XscHttpWorker> wk, int mtu, int cfd, const string &peer) :
+XmsgImHttpChannel::XmsgImHttpChannel(XscHttpWorker* wk, int mtu, int cfd, const string &peer) :
 		XmsgImChannel(ActorType::ACTOR_N2H, XscProtocolType::XSC_PROTOCOL_HTTP, wk), XscHttpChannel(wk, mtu, cfd, peer)
 {
 

@@ -25,7 +25,7 @@
 class XmsgImWebSocketLog: public XscWebSocketLog, public XmsgImLog
 {
 public:
-	shared_ptr<XscWebSocketChannel> newXscWebSocketChannel(shared_ptr<XscWebSocketWorker> wk, int cfd, const string& peer); 
+	shared_ptr<XscWebSocketChannel> newXscWebSocketChannel(XscWebSocketWorker* wk, int cfd, const string& peer); 
 public:
 	XmsgImWebSocketLog();
 	virtual ~XmsgImWebSocketLog();

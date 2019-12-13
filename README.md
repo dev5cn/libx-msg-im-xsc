@@ -1,12 +1,14 @@
 # libx-msg-im-xsc
 
+![img](http://www.dev5.cn/x_msg_im/start/xsc/img/libx-msg-im-xsc-arch.svg)
+
 * 这是一个基于actor模型的单进程多线程并发通信服务器框架. 它的目标是为上层应用提供一个高性能, 可测量, 并行无锁, 网络透明, 全异步的开发环境.
 
-* 在`X-MSG-IM`系统中, 它为所有核心网元提供网络事务控制, 应用层消息处理, 透明的分布式信令跟踪(调用链)能力.
+* 在`X-MSG-IM`系统中, 它为所有核心网元提供网络事务控制, 应用层消息处理, 透明的分布式信令跟踪(调用链)能力. 
 
-* 既然是到了应用层, 提供的api自然也比较友好. 因此, 你可以很快速地在这些api上构建起一个并发服务器. 
+* 它建立在[libxsc-cpp](https://github.com/dev5cn/libxsc-cpp)和[libxsc-proto-cpp](https://github.com/dev5cn/libxsc-proto-cpp)之上. 
 
-* 它建立在[libxsc-cpp](https://github.com/dev5cn/libxsc-cpp)和[libxsc-proto-cpp](https://github.com/dev5cn/libxsc-proto-cpp)之上.
+* 既然是到了应用层, 提供的api自然也比较友好. 因此, 你可以很快速地在这些api上构建起一个同时支持多种传输层协议(`tcp`, `http`, `websocket`, `udp`, `rudp`)的并发服务器. 
 
 * 看下面的例子.
 

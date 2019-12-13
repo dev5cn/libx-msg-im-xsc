@@ -22,15 +22,107 @@
 #include "XmsgImN2HMsgMgr.h"
 #include "XmsgImH2NMsgMgr.h"
 #include "http/XmsgImHttpChannel.h"
+#include "rudp/XmsgImRudpChannel.h"
 #include "tcp/XmsgImTcpChannel.h"
+#include "udp/XmsgImUdpChannel.h"
 #include "ws/XmsgImWebSocketChannel.h"
 
-XmsgImChannel::XmsgImChannel(ActorType type, XscProtocolType proType, shared_ptr<XscWorker> wk)
+XmsgImChannel::XmsgImChannel(ActorType type, XscProtocolType proType, XscWorker* wk)
 {
-	this->__worker__ = wk.get();
+	this->__worker__ = wk;
 	this->at = type;
 	this->pro = proType;
 	this->tidSeq = Crypto::randomInt();
+}
+
+void XmsgImChannel::forwardBegin(const string& sne, const string& dne, shared_ptr<Message> req, function<void(SptrXiti trans)> cb, SptrOob oob, SptrXit upstreamTrans)
+{
+	auto xscChannel = this->toXscChannel();
+	SptrXiti trans(new XmsgImTransInitiative(xscChannel, cb));
+	trans->beginMsg = req;
+	if (oob != nullptr)
+	{
+		for (auto& it : *oob)
+			trans->addOob(it.first, it.second);
+	}
+	auto channel = this->cast();
+	xscChannel->future([channel, trans, upstreamTrans]
+	{
+		channel->futureBegin(trans, upstreamTrans);
+	});
+}
+
+void XmsgImChannel::forwardBegin2ne(const string& sne, const string& dne, shared_ptr<Message> req, function<void(SptrXiti trans)> cb, SptrOob oob, SptrXit upstreamTrans)
+{
+	auto xscChannel = this->toXscChannel();
+	SptrXiti trans(new XmsgImTransInitiative(xscChannel, cb));
+	trans->addOob(XSC_TAG_INTERCEPT, "enable"); 
+	trans->beginMsg = req;
+	if (oob != nullptr)
+	{
+		for (auto& it : *oob)
+			trans->addOob(it.first, it.second);
+	}
+	auto channel = this->cast();
+	xscChannel->future([channel, trans, upstreamTrans]
+	{
+		channel->futureBegin(trans, upstreamTrans);
+	});
+}
+
+void XmsgImChannel::forwardBegin(const string& sne, const string& dne, const string& msg, const string& dat, function<void(SptrXiti trans)> cb, SptrOob oob, bool raw, SptrXit upstreamTrans)
+{
+	auto xscChannel = this->toXscChannel();
+	SptrXiti trans(new XmsgImTransInitiative(xscChannel, cb));
+	trans->raw = raw;
+	trans->rawMsg.reset(new x_msg_im_trans_raw_msg());
+	trans->rawMsg->msg = msg;
+	trans->rawMsg->dat = dat;
+	if (oob != nullptr)
+	{
+		for (auto& it : *oob)
+			trans->addOob(it.first, it.second);
+	}
+	auto channel = this->cast();
+	xscChannel->future([channel, trans, upstreamTrans]
+	{
+		channel->futureBegin(trans, upstreamTrans);
+	});
+}
+
+void XmsgImChannel::forwardUnidirection(const string& sne, const string& dne, shared_ptr<Message> uni, SptrOob oob, SptrXit upstreamTrans)
+{
+	auto xscChannel = this->toXscChannel();
+	shared_ptr<XmsgImTransUnidirectionInit> trans(new XmsgImTransUnidirectionInit(xscChannel));
+	trans->uniMsg = uni;
+	if (oob != nullptr)
+	{
+		for (auto& it : *oob)
+			trans->addOob(it.first, it.second);
+	}
+	auto channel = this->cast();
+	xscChannel->future([channel, trans, upstreamTrans]
+	{
+		channel->futureUnidirection(trans, upstreamTrans);
+	});
+}
+
+void XmsgImChannel::forwardUnidirection2ne(const string& sne, const string& dne, shared_ptr<Message> uni, SptrOob oob, SptrXit upstreamTrans)
+{
+	auto xscChannel = this->toXscChannel();
+	shared_ptr<XmsgImTransUnidirectionInit> trans(new XmsgImTransUnidirectionInit(xscChannel));
+	trans->addOob(XSC_TAG_INTERCEPT, "enable"); 
+	trans->uniMsg = uni;
+	if (oob != nullptr)
+	{
+		for (auto& it : *oob)
+			trans->addOob(it.first, it.second);
+	}
+	auto channel = this->cast();
+	xscChannel->future([channel, trans, upstreamTrans]
+	{
+		channel->futureUnidirection(trans, upstreamTrans);
+	});
 }
 
 void XmsgImChannel::begin(shared_ptr<Message> req, function<void(SptrXiti trans)> cb, SptrOob oob, SptrXit upstreamTrans)
@@ -294,6 +386,15 @@ void XmsgImChannel::sendPdu(shared_ptr<XscProtoPdu> pdu)
 	static_pointer_cast<XmsgImHttpChannel>(channel)->sendXscPdu(pdu);
 }
 
+bool XmsgImChannel::isEnableTracingOnOutStack()
+{
+	if (!this->__worker__->server->tracing) 
+		return false;
+	if (this->at == ActorType::ACTOR_H2N) 
+		return true;
+	return this->__worker__->server->n2hTracing; 
+}
+
 uint XmsgImChannel::genTid()
 {
 	return ++(this->tidSeq);
@@ -396,6 +497,30 @@ bool XmsgImChannel::evnEnd(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_pt
 	return trans->end(pdu);
 }
 
+bool XmsgImChannel::evnContinue(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel)
+{
+	LOG_DEBUG("unsupported XSC_TAG_TRANS_CONTINUE")
+	return false;
+}
+
+bool XmsgImChannel::evnDialog(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel)
+{
+	LOG_DEBUG("unsupported XSC_TAG_TRANS_DIALOG")
+	return false;
+}
+
+bool XmsgImChannel::evnCancel(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel)
+{
+	LOG_DEBUG("unsupported XSC_TAG_TRANS_CANCEL")
+	return false;
+}
+
+bool XmsgImChannel::evnAbort(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel)
+{
+	LOG_DEBUG("unsupported XSC_TAG_TRANS_ABORT")
+	return false;
+}
+
 bool XmsgImChannel::evnUnidirection(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel, shared_ptr<XmsgImMsgMgr> msgMgr)
 {
 	shared_ptr<XmsgImMsgStub> stub = msgMgr->getMsgStub(pdu->transm.trans->msg);
@@ -439,6 +564,8 @@ void XmsgImChannel::checkTransInit(ullong now)
 	if (now < this->lastCheckTransTs + 10 * DateMisc::sec)
 		return;
 	this->lastCheckTransTs = now;
+	if (this->transInit.empty())
+		return;
 	int tm = this->n2hTransTimeout();
 	list<SptrXiti> tmp;
 	for (auto it = this->transInit.begin(); it != this->transInit.end();)
@@ -486,6 +613,10 @@ shared_ptr<XmsgImChannel> XmsgImChannel::cast(shared_ptr<XscChannel> channel)
 		return static_pointer_cast<XmsgImHttpChannel>(channel);
 	if (channel->proType == XscProtocolType::XSC_PROTOCOL_WEBSOCKET)
 		return static_pointer_cast<XmsgImWebSocketChannel>(channel);
+	if (channel->proType == XscProtocolType::XSC_PROTOCOL_UDP)
+		return static_pointer_cast<XmsgImUdpChannel>(channel);
+	if (channel->proType == XscProtocolType::XSC_PROTOCOL_RUDP)
+		return static_pointer_cast<XmsgImRudpChannel>(channel);
 	LOG_FAULT("it`s a bug, unexpected xsc protocol type, channel: %02X", channel->proType)
 	return nullptr;
 }
@@ -498,6 +629,10 @@ shared_ptr<XmsgImChannel> XmsgImChannel::cast()
 		return static_pointer_cast<XmsgImChannel>(static_pointer_cast<XmsgImHttpChannel>(((XmsgImHttpChannel*) this)->shared_from_this()));
 	if (this->pro == XscProtocolType::XSC_PROTOCOL_WEBSOCKET)
 		return static_pointer_cast<XmsgImChannel>(static_pointer_cast<XmsgImWebSocketChannel>(((XmsgImWebSocketChannel*) this)->shared_from_this()));
+	if (this->pro == XscProtocolType::XSC_PROTOCOL_UDP)
+		return static_pointer_cast<XmsgImChannel>(static_pointer_cast<XmsgImUdpChannel>(((XmsgImUdpChannel*) this)->shared_from_this()));
+	if (this->pro == XscProtocolType::XSC_PROTOCOL_RUDP)
+		return static_pointer_cast<XmsgImChannel>(static_pointer_cast<XmsgImRudpChannel>(((XmsgImRudpChannel*) this)->shared_from_this()));
 	LOG_FAULT("it`s a bug, unexpected xsc protocol type, channel: %02X", this->pro)
 	return nullptr;
 }
@@ -510,6 +645,10 @@ shared_ptr<XscChannel> XmsgImChannel::toXscChannel()
 		return static_pointer_cast<XmsgImHttpChannel>(((XmsgImHttpChannel*) this)->shared_from_this());
 	if (this->pro == XscProtocolType::XSC_PROTOCOL_WEBSOCKET)
 		return static_pointer_cast<XmsgImWebSocketChannel>(((XmsgImWebSocketChannel*) this)->shared_from_this());
+	if (this->pro == XscProtocolType::XSC_PROTOCOL_UDP)
+		return static_pointer_cast<XmsgImUdpChannel>(((XmsgImUdpChannel*) this)->shared_from_this());
+	if (this->pro == XscProtocolType::XSC_PROTOCOL_RUDP)
+		return static_pointer_cast<XmsgImRudpChannel>(((XmsgImRudpChannel*) this)->shared_from_this());
 	LOG_FAULT("it`s a bug, unexpected xsc protocol type, channel: %02X", this->pro)
 	return nullptr;
 }
@@ -538,6 +677,13 @@ int XmsgImChannel::n2hTransTimeout()
 		shared_ptr<XscWebSocketServer> webSocketServer = static_pointer_cast<XscWebSocketServer>(Xsc::getXscTcpServer());
 		auto cfg = static_pointer_cast<XscWebSocketCfg>(webSocketServer->cfg);
 		tm = this->at == ActorType::ACTOR_H2N ? cfg->h2nTransTimeout : cfg->n2hTransTimeout;
+		tm *= DateMisc::sec;
+		return tm;
+	}
+	if (this->pro == XscProtocolType::XSC_PROTOCOL_RUDP)
+	{
+		auto cfg = static_pointer_cast<XscRudpCfg>(Xsc::getXscRudpServer()->cfg);
+		tm = cfg->n2hTransTimeout;
 		tm *= DateMisc::sec;
 		return tm;
 	}

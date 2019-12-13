@@ -19,7 +19,9 @@
 
 #include "XmsgImLog.h"
 #include "http/XmsgImHttpLog.h"
+#include "rudp/XmsgImRudpLog.h"
 #include "tcp/XmsgImTcpLog.h"
+#include "udp/XmsgImUdpLog.h"
 #include "ws/XmsgImWebSocketLog.h"
 
 XmsgImLog::XmsgImLog()
@@ -35,6 +37,10 @@ shared_ptr<XmsgImLog> XmsgImLog::getLog(XscChannel* channel)
 		return static_pointer_cast<XmsgImLog>(static_pointer_cast<XmsgImHttpLog>(static_pointer_cast<XscHttpLog>(channel->worker->server->log)));
 	if (channel->proType == XscProtocolType::XSC_PROTOCOL_WEBSOCKET)
 		return static_pointer_cast<XmsgImLog>(static_pointer_cast<XmsgImWebSocketLog>(static_pointer_cast<XscWebSocketLog>(channel->worker->server->log)));
+	if (channel->proType == XscProtocolType::XSC_PROTOCOL_UDP)
+		return static_pointer_cast<XmsgImLog>(static_pointer_cast<XmsgImUdpLog>(static_pointer_cast<XscUdpLog>(channel->worker->server->log)));
+	if (channel->proType == XscProtocolType::XSC_PROTOCOL_RUDP)
+		return static_pointer_cast<XmsgImLog>(static_pointer_cast<XmsgImRudpLog>(static_pointer_cast<XmsgImRudpLog>(channel->worker->server->log)));
 	LOG_FAULT("it`s a bug, unexpected xsc protocol type, channel: %02X", channel->proType)
 	return nullptr;
 }

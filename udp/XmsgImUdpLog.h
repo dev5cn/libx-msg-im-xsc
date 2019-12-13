@@ -17,17 +17,18 @@
   along with X-MSG-IM.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef XMSGIMTCPLOG_H_
-#define XMSGIMTCPLOG_H_
+#ifndef UDP_XMSGIMUDPLOG_H_
+#define UDP_XMSGIMUDPLOG_H_
 
 #include "../XmsgImLog.h"
 
-class XmsgImTcpLog: public XscTcpLog, public XmsgImLog
+class XmsgImUdpLog: public XscUdpLog, public XmsgImLog
 {
 public:
-	shared_ptr<XscTcpChannel> newXscTcpChannel(XscTcpWorker* wk, int cfd, const string& peer); 
-	XmsgImTcpLog();
-	virtual ~XmsgImTcpLog();
+	shared_ptr<XscUdpChannel> newXscUdpChannel(XscUdpWorker* wk, int cfd, const string& peer); 
+public:
+	XmsgImUdpLog();
+	virtual ~XmsgImUdpLog();
 };
 
 #endif 

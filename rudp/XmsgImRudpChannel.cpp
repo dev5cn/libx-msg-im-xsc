@@ -17,18 +17,15 @@
   along with X-MSG-IM.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "XmsgImTcpChannel.h"
-#include "XmsgImTcpLog.h"
-#include "XmsgImTcpH2N.h"
-#include "../XmsgImTransUnidirectionInit.h"
+#include "XmsgImRudpChannel.h"
 
-XmsgImTcpChannel::XmsgImTcpChannel(ActorType type, XscTcpWorker* wk, int mtu, int cfd, const string &peer) :
-		XmsgImChannel(type, XscProtocolType::XSC_PROTOCOL_TCP, wk), XscTcpChannel(type, wk, mtu, cfd, peer)
+XmsgImRudpChannel::XmsgImRudpChannel(XscRudpWorker* wk, int mtu, int cfd, const string &peer) :
+		XmsgImChannel(ActorType::ACTOR_N2H, XscProtocolType::XSC_PROTOCOL_RUDP, wk), XscRudpChannel(wk, mtu, cfd, peer)
 {
-	this->lastCheckTransTs = Xsc::clock;
+
 }
 
-int XmsgImTcpChannel::evnRecv(XscWorker* wk, uchar* dat, int len)
+int XmsgImRudpChannel::evnRecv(XscWorker* wk, uchar* dat, int len)
 {
 	int used = 0;
 	while (true)
@@ -44,7 +41,7 @@ int XmsgImTcpChannel::evnRecv(XscWorker* wk, uchar* dat, int len)
 			}
 			used += pdu->transm.len;
 			this->incMsg();
-			if (!this->evnMsg(wk, pdu, this->at == ActorType::ACTOR_N2H ? static_pointer_cast<XmsgImMsgMgr>(this->worker->msgMgr) : ((XmsgImTcpH2N*) this)->msgMgr))
+			if (!this->evnMsg(wk, pdu, static_pointer_cast<XmsgImMsgMgr>(this->worker->msgMgr)))
 				return -1;
 			if (used == len) 
 				return used;
@@ -62,12 +59,32 @@ int XmsgImTcpChannel::evnRecv(XscWorker* wk, uchar* dat, int len)
 	}
 }
 
-void XmsgImTcpChannel::clean()
+void XmsgImRudpChannel::dida(ullong now)
+{
+	if (!this->est)
+		return;
+	this->checkTransInit(now);
+}
+
+void XmsgImRudpChannel::evnDisc()
+{
+	shared_ptr<XscUsr> usr = this->usr.lock();
+	if (usr != nullptr)
+		usr->evnDisc();
+	LOG_DEBUG("have a x-msg-im rudp channel lost: %s", this->toString().c_str())
+}
+
+void XmsgImRudpChannel::clean()
 {
 	this->cleanTransInit();
 }
 
-XmsgImTcpChannel::~XmsgImTcpChannel()
+string XmsgImRudpChannel::toString()
+{
+	return XscRudpChannel::toString();
+}
+
+XmsgImRudpChannel::~XmsgImRudpChannel()
 {
 
 }

@@ -26,7 +26,7 @@ XmsgImTcpLog::XmsgImTcpLog() :
 
 }
 
-shared_ptr<XscTcpChannel> XmsgImTcpLog::newXscTcpChannel(shared_ptr<XscTcpWorker> wk, int cfd, const string& peer)
+shared_ptr<XscTcpChannel> XmsgImTcpLog::newXscTcpChannel(XscTcpWorker* wk, int cfd, const string& peer)
 {
 	return shared_ptr<XscTcpChannel>(new XmsgImTcpN2H(wk, wk->mtu, cfd, peer));
 }

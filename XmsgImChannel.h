@@ -40,11 +40,16 @@ public:
 	void begin(const string& msg, const string& dat, function<void(SptrXiti trans)> cb, SptrOob oob = nullptr, bool raw = false, SptrXit upstreamTrans = nullptr); 
 	void unidirection(shared_ptr<Message> uni, SptrOob oob = nullptr, SptrXit upstreamTrans = nullptr); 
 	void unidirection(const string& msg, const string& dat, SptrOob oob = nullptr, SptrXit upstreamTrans = nullptr); 
+	void forwardBegin(const string& sne, const string& dne, shared_ptr<Message> req, function<void(SptrXiti trans)> cb, SptrOob oob = nullptr, SptrXit upstreamTrans = nullptr); 
+	void forwardBegin2ne(const string& sne, const string& dne, shared_ptr<Message> req, function<void(SptrXiti trans)> cb, SptrOob oob = nullptr, SptrXit upstreamTrans = nullptr); 
+	void forwardBegin(const string& sne, const string& dne, const string& msg, const string& dat, function<void(SptrXiti trans)> cb, SptrOob oob = nullptr, bool raw = false, SptrXit upstreamTrans = nullptr); 
+	void forwardUnidirection(const string& sne, const string& dne, shared_ptr<Message> uni, SptrOob oob = nullptr, SptrXit upstreamTrans = nullptr); 
+	void forwardUnidirection2ne(const string& sne, const string& dne, shared_ptr<Message> uni, SptrOob oob = nullptr, SptrXit upstreamTrans = nullptr); 
 public:
 	void sendEnd(SptrXitp trans); 
 	void sendEnd(uint dtid, ushort ret, const string& desc, shared_ptr<Message> endMsg, shared_ptr<XscProtoPdu> upstreamPdu , function<void(shared_ptr<XscProtoPdu> pdu)> cb); 
 	uint genTid(); 
-	XmsgImChannel(ActorType type, XscProtocolType proType, shared_ptr<XscWorker> wk);
+	XmsgImChannel(ActorType type, XscProtocolType proType, XscWorker* wk);
 	virtual ~XmsgImChannel();
 private:
 	void sendBegin(SptrXiti trans); 
@@ -53,10 +58,15 @@ private:
 	void sendUnidirection(shared_ptr<XmsgImTransUnidirectionInit> trans); 
 private:
 	void sendPdu(shared_ptr<XscProtoPdu> pdu); 
+	bool isEnableTracingOnOutStack(); 
 public:
 	bool evnMsg(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XmsgImMsgMgr> msgMgr); 
 	bool evnBegin(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel, shared_ptr<XmsgImMsgMgr> msgMgr); 
 	bool evnEnd(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel); 
+	bool evnContinue(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel); 
+	bool evnDialog(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel); 
+	bool evnCancel(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel); 
+	bool evnAbort(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel); 
 	bool evnUnidirection(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel, shared_ptr<XmsgImMsgMgr> msgMgr); 
 	bool evnPartial(XscWorker* wk, shared_ptr<XscProtoPdu> pdu, shared_ptr<XscChannel> channel); 
 	void checkTransInit(ullong now); 

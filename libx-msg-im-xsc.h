@@ -28,9 +28,13 @@
 #include "XmsgImTransUnidirectionPass.h"
 #include "http/XmsgImHttpChannel.h"
 #include "http/XmsgImHttpLog.h"
+#include "rudp/XmsgImRudpChannel.h"
+#include "rudp/XmsgImRudpLog.h"
 #include "tcp/XmsgImTcpLog.h"
 #include "tcp/XmsgImTcpN2H.h"
 #include "tcp/XmsgImTcpH2N.h"
+#include "udp/XmsgImUdpChannel.h"
+#include "udp/XmsgImUdpLog.h"
 #include "ws/XmsgImWebSocketChannel.h"
 #include "ws/XmsgImWebSocketLog.h"
 

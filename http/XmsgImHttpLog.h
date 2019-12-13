@@ -25,7 +25,7 @@
 class XmsgImHttpLog: public XscHttpLog, public XmsgImLog
 {
 public:
-	shared_ptr<XscHttpChannel> newXscHttpChannel(shared_ptr<XscHttpWorker> wk, int cfd, const string& peer); 
+	shared_ptr<XscHttpChannel> newXscHttpChannel(XscHttpWorker* wk, int cfd, const string& peer); 
 public:
 	XmsgImHttpLog();
 	virtual ~XmsgImHttpLog();

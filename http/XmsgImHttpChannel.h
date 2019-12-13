@@ -38,7 +38,7 @@ public:
 public:
 	void sendXscPdu(shared_ptr<XscProtoPdu> pdu); 
 	string toString();
-	XmsgImHttpChannel(shared_ptr<XscHttpWorker> wk, int mtu, int cfd, const string &peer);
+	XmsgImHttpChannel(XscHttpWorker* wk, int mtu, int cfd, const string &peer);
 	virtual ~XmsgImHttpChannel();
 };
 

@@ -19,7 +19,7 @@
 
 #include "XmsgImWebSocketChannel.h"
 
-XmsgImWebSocketChannel::XmsgImWebSocketChannel(shared_ptr<XscWebSocketWorker> wk, int mtu, int cfd, const string &peer) :
+XmsgImWebSocketChannel::XmsgImWebSocketChannel(XscWebSocketWorker* wk, int mtu, int cfd, const string &peer) :
 		XmsgImChannel(ActorType::ACTOR_N2H, XscProtocolType::XSC_PROTOCOL_WEBSOCKET, wk), XscWebSocketChannel(wk, mtu, cfd, peer)
 {
 	this->est = true;

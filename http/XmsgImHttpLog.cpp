@@ -25,7 +25,7 @@ XmsgImHttpLog::XmsgImHttpLog()
 
 }
 
-shared_ptr<XscHttpChannel> XmsgImHttpLog::newXscHttpChannel(shared_ptr<XscHttpWorker> wk, int cfd, const string& peer)
+shared_ptr<XscHttpChannel> XmsgImHttpLog::newXscHttpChannel(XscHttpWorker* wk, int cfd, const string& peer)
 {
 	return shared_ptr<XscHttpChannel>(new XmsgImHttpChannel(wk, wk->mtu, cfd, peer));
 }

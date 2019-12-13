@@ -28,7 +28,7 @@ public:
 	int evnRecv(XscWorker* wk, uchar* dat, int len); 
 public:
 	void clean(); 
-	XmsgImTcpChannel(ActorType type, shared_ptr<XscTcpWorker> wk, int mtu, int cfd, const string &peer);
+	XmsgImTcpChannel(ActorType type, XscTcpWorker* wk, int mtu, int cfd, const string &peer);
 	virtual ~XmsgImTcpChannel();
 };
 

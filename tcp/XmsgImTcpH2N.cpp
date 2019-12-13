@@ -22,7 +22,7 @@
 #include "../XmsgImTransPassive.h"
 
 XmsgImTcpH2N::XmsgImTcpH2N(shared_ptr<XscTcpServer> tcpServer, const string &peer) :
-		XmsgImTcpChannel(ActorType::ACTOR_H2N, static_pointer_cast<XscTcpWorker>(tcpServer->rr()), tcpServer->cfg->peerRcvBuf, 0, peer)
+		XmsgImTcpChannel(ActorType::ACTOR_H2N, static_pointer_cast<XscTcpWorker>(tcpServer->rr()).get(), tcpServer->cfg->peerRcvBuf, 0, peer)
 {
 	this->msgMgr.reset(new XmsgImH2NMsgMgr());
 	this->needWait = false;
@@ -86,13 +86,14 @@ void XmsgImTcpH2N::svc(shared_ptr<XmsgImTcpH2N> h2n)
 			h2n->cfd = cfd;
 			h2n->dlen = 0;
 			h2n->cleanWbuf();
-			h2n->wbuf = new queue<xsc_tcp_channel_wbuf*>();
+			h2n->wbuf = new queue<xsc_channel_wbuf*>();
 			h2n->gts = Xsc::clock;
 			h2n->lts = 0ULL;
 			h2n->stat.clear();
-			Xsc::getXscTcpWorker()->setFdAtt((XscTcpServer*)(h2n->worker->server), cfd);
-			Xsc::getXscTcpWorker()->addTcpChannel(h2n);
-			Xsc::getXscTcpWorker()->addCfd4Read(cfd);
+			XscTcpWorker* worker = Xsc::getXscTcpWorker();
+			worker->setFdAtt((XscTcpServer*)(h2n->worker->server), cfd);
+			worker->addChannel(h2n);
+			worker->addCfd4Read(cfd);
 			h2n->estab();
 		});
 		break;

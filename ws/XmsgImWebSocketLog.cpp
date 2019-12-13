@@ -26,7 +26,7 @@ XmsgImWebSocketLog::XmsgImWebSocketLog() :
 
 }
 
-shared_ptr<XscWebSocketChannel> XmsgImWebSocketLog::newXscWebSocketChannel(shared_ptr<XscWebSocketWorker> wk, int cfd, const string& peer)
+shared_ptr<XscWebSocketChannel> XmsgImWebSocketLog::newXscWebSocketChannel(XscWebSocketWorker* wk, int cfd, const string& peer)
 {
 	return shared_ptr<XscWebSocketChannel>(new XmsgImWebSocketChannel(wk, wk->mtu, cfd, peer));
 }

@@ -35,7 +35,7 @@ public:
 	void clean(); 
 public:
 	string toString();
-	XmsgImWebSocketChannel(shared_ptr<XscWebSocketWorker> wk, int mtu, int cfd, const string &peer);
+	XmsgImWebSocketChannel(XscWebSocketWorker* wk, int mtu, int cfd, const string &peer);
 	virtual ~XmsgImWebSocketChannel();
 private:
 	int checkHandShake(XscWorker* wk, uchar* dat, int len); 

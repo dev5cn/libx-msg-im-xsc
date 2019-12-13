@@ -22,7 +22,7 @@
 #include "../XmsgImN2HMsgMgr.h"
 #include "../XmsgImTransPassive.h"
 
-XmsgImTcpN2H::XmsgImTcpN2H(shared_ptr<XscTcpWorker> wk, int mtu, int cfd, const string& peer) :
+XmsgImTcpN2H::XmsgImTcpN2H(XscTcpWorker* wk, int mtu, int cfd, const string& peer) :
 		XmsgImTcpChannel(ActorType::ACTOR_N2H, wk, mtu, cfd, peer)
 {
 	this->est = true;
@@ -38,7 +38,9 @@ void XmsgImTcpN2H::evnDisc()
 
 void XmsgImTcpN2H::dida(ullong now)
 {
-
+	if (!this->est)
+		return;
+	this->checkTransInit(now);
 }
 
 string XmsgImTcpN2H::toString()

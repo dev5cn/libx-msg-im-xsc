@@ -27,7 +27,7 @@
 class XmsgImTcpN2H: public XmsgImTcpChannel
 {
 public:
-	XmsgImTcpN2H(shared_ptr<XscTcpWorker> wk, int mtu, int cfd, const string& peer);
+	XmsgImTcpN2H(XscTcpWorker* wk, int mtu, int cfd, const string& peer);
 	string toString();
 	virtual ~XmsgImTcpN2H();
 public:
