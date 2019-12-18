@@ -177,7 +177,7 @@ int XmsgImWebSocketChannel::decode(XscWorker* wk, uchar* dat, int len)
 		{
 			ushort s;
 			::memcpy(&s, dat + 2, 2);
-			s = ::ntohs(s); 
+			s = htons(s); 
 			size = 1 + 3 + 4 + s ;
 		}
 		if (size > wk->mtu)
